@@ -16,6 +16,10 @@ const store = new MongoDBStore({
   collection: "sessions",
 });
 
+const authRoutes = require("./routes/auth");
+const postRoutes = require("./routes/posts");
+const userRoutes = require("./routes/users");
+
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.json());
 
@@ -27,6 +31,10 @@ app.use(
     store: store,
   })
 );
+
+app.use(authRoutes);
+app.use(postRoutes);
+app.use(userRoutes);
 
 mongoose
   .connect(MONGODB_URL)
