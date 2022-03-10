@@ -59,6 +59,38 @@ exports.getPost = (req, res, next) => {
   }
 };
 
+exports.editPost = (req, res, next) => {
+  const postId = req.params.id;
+  const user = req.user;
+  const updateQuery = {};
+  if (req.body.title) {
+    updateQuery.title = req.body.title;
+  }
+  if (req.body.content) {
+    updateQuery.content = req.body.content;
+  }
+
+  Post.findOneAndUpdate(
+    { _id: postId, user: user._id },
+    updateQuery,
+    (err, post) => {
+      if (!post) {
+        return res.status(404).json({
+          error: "Post not found.",
+        });
+      }
+      if (err) {
+        res.status(500).json({
+          error: err,
+        });
+      }
+      return res.status(200).json({
+        message: "Updated post.",
+      });
+    }
+  );
+};
+
 exports.deletePost = (req, res, next) => {
   const postId = req.params.id;
   const user = req.user;
@@ -78,4 +110,54 @@ exports.deletePost = (req, res, next) => {
       message: "Deleted post.",
     });
   });
+};
+
+exports.likePost = (req, res, next) => {
+  const postId = req.params.id;
+  const user = req.user;
+
+  Post.updateOne(
+    { _id: postId },
+    { $addToSet: { likes: user._id } },
+    (err, post) => {
+      if (!post) {
+        return res.status(404).json({
+          error: "Post not found.",
+        });
+      }
+      if (err) {
+        res.status(500).json({
+          error: err,
+        });
+      }
+      return res.status(200).json({
+        message: "Liked post.",
+      });
+    }
+  );
+};
+
+exports.unlikePost = (req, res, next) => {
+  const postId = req.params.id;
+  const user = req.user;
+
+  Post.updateOne(
+    { _id: postId },
+    { $pull: { likes: user._id } },
+    (err, post) => {
+      if (!post) {
+        return res.status(404).json({
+          error: "Post not found.",
+        });
+      }
+      if (err) {
+        res.status(500).json({
+          error: err,
+        });
+      }
+      return res.status(200).json({
+        message: "Unliked post.",
+      });
+    }
+  );
 };

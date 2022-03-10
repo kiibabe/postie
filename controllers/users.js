@@ -26,7 +26,7 @@ exports.getUsers = (req, res, next) => {
       .exec((err, users) => {
         if (!users) {
           return res.status(404).json({
-            error: "No posts to show.",
+            error: "No user to show.",
           });
         }
         if (err) {
@@ -54,5 +54,30 @@ exports.getUserPosts = (req, res, next) => {
       });
     }
     return res.status(200).json(posts);
+  });
+};
+
+exports.editUser = (req, res, next) => {
+  const userId = req.user._id;
+  const updateQuery = {};
+
+  if (req.body.email) {
+    updateQuery.email = req.body.email;
+  }
+
+  User.findOneAndUpdate({ _id: userId }, updateQuery, (err, user) => {
+    if (!user) {
+      return res.status(404).json({
+        error: "User not found.",
+      });
+    }
+    if (err) {
+      res.status(500).json({
+        error: err,
+      });
+    }
+    return res.status(200).json({
+      message: "Updated user.",
+    });
   });
 };
